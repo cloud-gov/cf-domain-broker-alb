@@ -279,7 +279,7 @@ func (m *RouteManager) assignALB(guid string) (*Route, error) {
 				FROM alb_proxies
 				LEFT JOIN routes ON (alb_proxies.alb_arn = routes.alb_proxy_arn)
 				GROUP BY alb_arn
-				HAVING count(*) < $1
+				HAVING count(*) <= $1
 				ORDER BY count
 				LIMIT 1
 		)
