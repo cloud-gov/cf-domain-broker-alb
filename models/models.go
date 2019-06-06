@@ -642,14 +642,20 @@ func (m *RouteManager) Destroy(guid string) error {
 	if err := m.db.First(&route.ALBProxy, ALBProxy{ALBARN: route.ALBProxyARN}).Error; err != nil {
 		return err
 	}
+	m.logger.info("get-related-certificate", lager.Data{
+		"guid": guid
+	})
 	var certRow Certificate
-	if ! m.db.Model(route).Related(&certRow, "Certificate").RecordNotFound() {
-		if err := m.db.Model(route).Related(&certRow, "Certificate").Error; err != nil {
-			return err
-		}
-
-		if err := m.purgeCertificate(route, &certRow); err != nil {
-			return err
+	certErr := m.db.Model(route).Related(&certRow, "Certificate").Error;
+		switch certErr {
+		case nil:
+			if err := m.purgeCertificate(route, &certRow); err != nil {
+				return err
+			}
+		case gorm.ErrRecordNotFound:
+			;
+		default:
+			return certErr
 		}
 	}
 	return m.db.Delete(route).Error
