@@ -643,14 +643,15 @@ func (m *RouteManager) Destroy(guid string) error {
 		return err
 	}
 	var certRow Certificate
-	if err := m.db.Model(route).Related(&certRow, "Certificate").Error; err != nil {
-		return err
-	}
+	if ! m.db.Model(route).Related(&certRow, "Certificate").RecordNotFound() {
+		if err := m.db.Model(route).Related(&certRow, "Certificate").Error; err != nil {
+			return err
+		}
 
-	if err := m.purgeCertificate(route, &certRow); err != nil {
-		return err
+		if err := m.purgeCertificate(route, &certRow); err != nil {
+			return err
+		}
 	}
-
 	return m.db.Delete(route).Error
 }
 
