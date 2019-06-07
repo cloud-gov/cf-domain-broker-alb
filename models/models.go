@@ -642,7 +642,7 @@ func (m *RouteManager) Destroy(guid string) error {
 	if err := m.db.First(&route.ALBProxy, ALBProxy{ALBARN: route.ALBProxyARN}).Error; err != nil {
 		return err
 	}
-	m.logger.info("get-related-certificate", lager.Data{
+	m.logger.Info("get-related-certificate", lager.Data{
 		"guid": guid,
 	})
 	var certRow Certificate
