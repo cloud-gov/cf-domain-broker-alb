@@ -637,17 +637,14 @@ func (m *RouteManager) updateProvisioning(r *Route) error {
 }
 
 func (m *RouteManager) Destroy(guid string) error {
-	m.logger.Info("destroy-route", lager.Data{
-		"guid": guid,
-	})
+	lsession := m.logger.Session("route-manager", lager.Data{"guid", guid})
+	lsession.Info("destroy-route")
 	route, err := m.Get(guid)
 	if err != nil {
 		return err
 	}
 
-	m.logger.Info("get-related-certificate", lager.Data{
-		"guid": guid,
-	})
+	lsession.Info("get-related-certificate")
 	var certRow Certificate
 	certErr := m.db.Model(route).Related(&certRow, "Certificate").Error
 	switch certErr {
