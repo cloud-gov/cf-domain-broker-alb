@@ -637,7 +637,7 @@ func (m *RouteManager) updateProvisioning(r *Route) error {
 }
 
 func (m *RouteManager) Destroy(guid string) error {
-	lsession := m.logger.Session("route-manager", lager.Data{"guid", guid})
+	lsession := m.logger.Session("route-manager", lager.Data{"guid": guid})
 	lsession.Info("destroy-route")
 	route, err := m.Get(guid)
 	if err != nil {
