@@ -643,20 +643,18 @@ func (m *RouteManager) Destroy(guid string) error {
 		return err
 	}
 	m.logger.info("get-related-certificate", lager.Data{
-		"guid": guid
+		"guid": guid,
 	})
 	var certRow Certificate
-	certErr := m.db.Model(route).Related(&certRow, "Certificate").Error;
-		switch certErr {
-		case nil:
-			if err := m.purgeCertificate(route, &certRow); err != nil {
-				return err
-			}
-		case gorm.ErrRecordNotFound:
-			;
-		default:
-			return certErr
+	certErr := m.db.Model(route).Related(&certRow, "Certificate").Error
+	switch certErr {
+	case nil:
+		if err := m.purgeCertificate(route, &certRow); err != nil {
+			return err
 		}
+	case gorm.ErrRecordNotFound:
+	default:
+		return certErr
 	}
 	return m.db.Delete(route).Error
 }
