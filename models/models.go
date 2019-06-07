@@ -411,6 +411,9 @@ func (m *RouteManager) purgeCertificate(route *Route, cert *Certificate) error {
 		"listenerARN": route.ALBProxy.ListenerARN,
 		"certARN":     cert.ARN,
 	})
+	if err := m.db.First(&route.ALBProxy, ALBProxy{ALBARN: route.ALBProxyARN}).Error; err != nil {
+		return err
+	}
 	if _, err := m.elbSvc.RemoveListenerCertificates(&elbv2.RemoveListenerCertificatesInput{
 		ListenerArn: aws.String(route.ALBProxy.ListenerARN),
 		Certificates: []*elbv2.Certificate{
@@ -634,14 +637,14 @@ func (m *RouteManager) updateProvisioning(r *Route) error {
 }
 
 func (m *RouteManager) Destroy(guid string) error {
+	m.logger.Info("destroy-route", lager.Data{
+		"guid": guid,
+	})
 	route, err := m.Get(guid)
 	if err != nil {
 		return err
 	}
 
-	if err := m.db.First(&route.ALBProxy, ALBProxy{ALBARN: route.ALBProxyARN}).Error; err != nil {
-		return err
-	}
 	m.logger.Info("get-related-certificate", lager.Data{
 		"guid": guid,
 	})
