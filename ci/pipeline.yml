@@ -9,7 +9,7 @@ jobs:
 
 - name: deploy-development
   plan:
-  - aggregate:
+  - in_parallel:
     - get: broker-src
       passed: [test-domains-broker]
       trigger: true
@@ -65,7 +65,7 @@ jobs:
   - get: broker-src
     passed: [deploy-development]
     trigger: true
-  - aggregate:
+  - in_parallel:
     - task: acceptance-tests-http-01
       file: broker-src/ci/acceptance-tests.yml
       params: &acceptance-tests-params-development
@@ -90,7 +90,7 @@ jobs:
 
 - name: deploy-staging
   plan:
-  - aggregate:
+  - in_parallel:
     - get: broker-src
       passed: [test-domains-broker]
       trigger: true
@@ -150,7 +150,7 @@ jobs:
     trigger: true
   - get: stemcell-xenial
     trigger: true
-  - aggregate:
+  - in_parallel:
     - task: acceptance-tests-http-01
       file: broker-src/ci/acceptance-tests.yml
       params: &acceptance-tests-params-staging
@@ -174,7 +174,7 @@ jobs:
 
 - name: deploy-production
   plan:
-  - aggregate:
+  - in_parallel:
     - get: broker-src
       passed: [acceptance-tests-staging]
       trigger: true
@@ -232,7 +232,7 @@ jobs:
   - get: broker-src
     passed: [deploy-production]
     trigger: true
-  - aggregate:
+  - in_parallel:
     - task: acceptance-tests-http-01
       file: broker-src/ci/acceptance-tests.yml
       params: &acceptance-tests-params-production
