@@ -34,7 +34,12 @@ jobs:
   - task: update-broker
     file: pipeline-tasks/register-service-broker.yml
     params:
-      <<: *cf-creds-development
+      <<: &cf-creds-development
+        CF_API_URL: ((cf-api-url-development))
+        CF_USERNAME: ((cf-deploy-username-development))
+        CF_PASSWORD: ((cf-deploy-password-development))
+        CF_ORGANIZATION: ((cf-organization-development))
+        CF_SPACE: ((cf-space-development))
       BROKER_NAME: domains-broker
       BROKER_URL: ((broker-url-development))
       AUTH_USER: ((domains-broker-user-development))
@@ -115,7 +120,12 @@ jobs:
   - task: update-broker
     file: pipeline-tasks/register-service-broker.yml
     params:
-      <<: *cf-creds-staging
+      <<: &cf-creds-staging
+        CF_API_URL: ((cf-api-url-staging))
+        CF_USERNAME: ((cf-deploy-username-staging))
+        CF_PASSWORD: ((cf-deploy-password-staging))
+        CF_ORGANIZATION: ((cf-organization-staging))
+        CF_SPACE: ((cf-space-staging))
       BROKER_NAME: domains-broker
       BROKER_URL: ((broker-url-staging))
       AUTH_USER: ((domains-broker-user-staging))
@@ -201,7 +211,12 @@ jobs:
   - task: update-broker
     file: pipeline-tasks/register-service-broker.yml
     params:
-      <<: *cf-creds-production
+      <<: &cf-creds-production
+        CF_API_URL: ((cf-api-url-production))
+        CF_USERNAME: ((cf-deploy-username-production))
+        CF_PASSWORD: ((cf-deploy-password-production))
+        CF_ORGANIZATION: ((cf-organization-production))
+        CF_SPACE: ((cf-space-production))
       BROKER_NAME: domains-broker
       BROKER_URL: ((broker-url-production))
       AUTH_USER: ((domains-broker-user-production))
@@ -347,23 +362,3 @@ resource_types:
   type: docker-image
   source:
     repository: cfcommunity/slack-notification-resource
-
-meta:
-  cf-creds-development: &cf-creds-development
-    CF_API_URL: ((cf-api-url-development))
-    CF_USERNAME: ((cf-deploy-username-development))
-    CF_PASSWORD: ((cf-deploy-password-development))
-    CF_ORGANIZATION: ((cf-organization-development))
-    CF_SPACE: ((cf-space-development))
-  cf-creds-staging: &cf-creds-staging
-    CF_API_URL: ((cf-api-url-staging))
-    CF_USERNAME: ((cf-deploy-username-staging))
-    CF_PASSWORD: ((cf-deploy-password-staging))
-    CF_ORGANIZATION: ((cf-organization-staging))
-    CF_SPACE: ((cf-space-staging))
-  cf-creds-production: &cf-creds-production
-    CF_API_URL: ((cf-api-url-production))
-    CF_USERNAME: ((cf-deploy-username-production))
-    CF_PASSWORD: ((cf-deploy-password-production))
-    CF_ORGANIZATION: ((cf-organization-production))
-    CF_SPACE: ((cf-space-production))
