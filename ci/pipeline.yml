@@ -193,7 +193,6 @@ jobs:
       passed: [acceptance-tests-staging]
       trigger: true
     - get: stemcell-xenial
-      passed: [acceptance-tests-staging]
       trigger: true
     - get: terraform-yaml
       resource: terraform-yaml-production
