@@ -4,6 +4,18 @@ A [Cloud Foundry](https://www.cloudfoundry.org/) [service broker](https://docs.c
 
 For the CDN version of this broker: https://github.com/18F/cf-cdn-service-broker
 
+## Let's Encrypt V1 End of Life
+
+The Let's Encrypt V1 endpoint is reaching end of life in June of 2020. In November of 2019, Let's Encrypt shutdown the creation of new users via the V1 API. https://community.letsencrypt.org/t/end-of-life-plan-for-acmev1/88430
+
+In response to disabling new user creation, this broker has been changed to use an existing user's credentials. This is implemented in `LoadRandomUser` in `models/models.go`. The pool of user ids to select from is configured via an environment variable `USER_ID_POOL`. This environment variable is injected via bosh from credhub. The envar is configured in `bosh/manifest.yml` and the value is set in credhub as `/bosh/domain-broker/user-id-pool`. These values should be set as a comma separated list in double quotes.
+
+`LoadRandomUser` will select a user from the pool, use the Let's Encrypt `reg` and `key` and create a new user entry in the broker database. Effectively, the user is the same in the eyes of Let's Encrypt but a different user in the broker database. This maintains the one user to one domain relationship in the broker database.
+
+The random selection of users from a pool aims to minimize the impact of the following rate limits:
+ *	- 300 Pending Authorizations per account
+ *	- Failed Validation limit of 5 failures per account, per hostname, per hour.
+
 ## Deployment
 
 ### Automated
