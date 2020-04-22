@@ -1,7 +1,75 @@
 #!/bin/bash
 
 set -eux
+function cleanup () {
+  # Delete private domain
+  cf delete-domain -f "${DOMAIN}"
 
+  # Delete DNS record(s)
+  cat << EOF > ./delete-cname.json
+{
+  "Changes": [
+    {
+      "Action": "DELETE",
+      "ResourceRecordSet": {
+        "Name": "${domain_external}.",
+        "Type": "CNAME",
+        "TTL": ${TTL},
+        "ResourceRecords": [
+          {"Value": "${domain_internal}"}
+        ]
+      }
+    }
+  ]
+}
+EOF
+  if [ "${CHALLENGE_TYPE}" = "DNS-01" ]; then
+    cat << EOF > ./delete-txt.json
+{
+  "Changes": [
+    {
+      "Action": "DELETE",
+      "ResourceRecordSet": {
+        "Name": "${txt_name}.",
+        "Type": "TXT",
+        "TTL": ${txt_ttl},
+        "ResourceRecords": [
+          {"Value": "${txt_value}"}
+        ]
+      }
+    }
+  ]
+}
+EOF
+
+  aws route53 change-resource-record-sets \
+    --hosted-zone-id "${HOSTED_ZONE_ID}" \
+    --change-batch file://./delete-cname.json
+  elif [ "${CHALLENGE_TYPE}" = "DNS-01" ]; then
+    aws route53 change-resource-record-sets \
+      --hosted-zone-id "${HOSTED_ZONE_ID}" \
+      --change-batch file://./delete-txt.json
+  fi
+
+  # Delete service
+  cf delete-service -f "${SERVICE_INSTANCE_NAME}"
+
+  # Wait for deprovision to complete
+  elapsed="${DOMAINS_TIMEOUT}"
+  until [ "${elapsed}" -le 0 ]; do
+    if ! cf service "${SERVICE_INSTANCE_NAME}"; then
+      deleted="true"
+      break
+    fi
+    let elapsed-=60
+    sleep 60
+  done
+  if [ "${deleted}" != "true" ]; then
+    echo "Failed to delete service ${SERVICE_NAME}"
+    exit 1
+  fi
+
+}
 # Set defaults
 TTL="${TTL:-60}"
 DOMAINS_TIMEOUT="${DOMAINS_TIMEOUT:-7200}"
@@ -36,6 +104,10 @@ sleep 5
 opts=$(jq -n --arg domains "${DOMAIN}" '{domains: [$domains]}')
 cf create-service "${SERVICE_NAME}" "${PLAN_NAME}" "${SERVICE_INSTANCE_NAME}" -c "${opts}"
 service_guid=$(cf service "${SERVICE_INSTANCE_NAME}" --guid)
+
+if [ "${DELETE_SERVICE:-"true"}" == "true" ]; then
+  trap cleanup exit
+fi
 
 http_regex="CNAME or ALIAS domain\(s\) (.*) to (.*) or"
 dns_regex="name: (.*), value: (.*), ttl: (.*)"
@@ -166,71 +238,3 @@ if [ -z "${elapsed}" ]; then
   exit 1
 fi
 
-if [ "${DELETE_SERVICE:-"true"}" == "true" ]; then
-  # Delete private domain
-  cf delete-domain -f "${DOMAIN}"
-
-  # Delete DNS record(s)
-  cat << EOF > ./delete-cname.json
-{
-  "Changes": [
-    {
-      "Action": "DELETE",
-      "ResourceRecordSet": {
-        "Name": "${domain_external}.",
-        "Type": "CNAME",
-        "TTL": ${TTL},
-        "ResourceRecords": [
-          {"Value": "${domain_internal}"}
-        ]
-      }
-    }
-  ]
-}
-EOF
-  if [ "${CHALLENGE_TYPE}" = "DNS-01" ]; then
-    cat << EOF > ./delete-txt.json
-{
-  "Changes": [
-    {
-      "Action": "DELETE",
-      "ResourceRecordSet": {
-        "Name": "${txt_name}.",
-        "Type": "TXT",
-        "TTL": ${txt_ttl},
-        "ResourceRecords": [
-          {"Value": "${txt_value}"}
-        ]
-      }
-    }
-  ]
-}
-EOF
-
-  aws route53 change-resource-record-sets \
-    --hosted-zone-id "${HOSTED_ZONE_ID}" \
-    --change-batch file://./delete-cname.json
-  elif [ "${CHALLENGE_TYPE}" = "DNS-01" ]; then
-    aws route53 change-resource-record-sets \
-      --hosted-zone-id "${HOSTED_ZONE_ID}" \
-      --change-batch file://./delete-txt.json
-  fi
-
-  # Delete service
-  cf delete-service -f "${SERVICE_INSTANCE_NAME}"
-
-  # Wait for deprovision to complete
-  elapsed="${DOMAINS_TIMEOUT}"
-  until [ "${elapsed}" -le 0 ]; do
-    if ! cf service "${SERVICE_INSTANCE_NAME}"; then
-      deleted="true"
-      break
-    fi
-    let elapsed-=60
-    sleep 60
-  done
-  if [ "${deleted}" != "true" ]; then
-    echo "Failed to delete service ${SERVICE_NAME}"
-    exit 1
-  fi
-fi
