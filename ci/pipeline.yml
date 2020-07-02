@@ -31,20 +31,6 @@ jobs:
       manifest: broker-src/bosh/manifest.yml
       vars_files:
       - terraform-secrets/terraform.yml
-  - task: update-broker
-    file: pipeline-tasks/register-service-broker.yml
-    params:
-      <<: &cf-creds-development
-        CF_API_URL: ((cf-api-url-development))
-        CF_USERNAME: ((cf-deploy-username-development))
-        CF_PASSWORD: ((cf-deploy-password-development))
-        CF_ORGANIZATION: ((cf-organization-development))
-        CF_SPACE: ((cf-space-development))
-      BROKER_NAME: domains-broker
-      BROKER_URL: ((broker-url-development))
-      AUTH_USER: ((domains-broker-user-development))
-      AUTH_PASS: ((domains-broker-pass-development))
-      SERVICES: custom-domain
   on_failure:
     put: slack
     params:
@@ -63,35 +49,6 @@ jobs:
       channel: ((slack-channel))
       username: ((slack-username))
       icon_url: ((slack-icon-url))
-
-- name: acceptance-tests-development
-  serial: true
-  plan:
-  - get: broker-src
-    passed: [deploy-development]
-    trigger: true
-  - in_parallel:
-    - task: acceptance-tests-http-01
-      file: broker-src/ci/acceptance-tests.yml
-      params: &acceptance-tests-params-development
-        <<: *cf-creds-development
-        SERVICE_NAME: custom-domain
-        PLAN_NAME: custom-domain
-        SERVICE_INSTANCE_NAME: domains-acceptance-test-%s
-        CHALLENGE_TYPE: HTTP-01
-        AWS_ACCESS_KEY_ID: ((domains-broker-access-key-id-acceptance-development))
-        AWS_SECRET_ACCESS_KEY: ((domains-broker-secret-access-key-acceptance-development))
-        HOSTED_ZONE_ID: ((hosted-zone-id-development))
-        DOMAIN: ((domain-url-development))
-        DOMAINS_TIMEOUT: ((domains-timeout))
-        CA_CERT: ((acceptance-test-ca-cert-development))
-        DELETE_SERVICE: ((acceptance-test-delete-service-development))
-    - task: acceptance-tests-dns-01
-      file: broker-src/ci/acceptance-tests.yml
-      params:
-        <<: *acceptance-tests-params-development
-        CHALLENGE_TYPE: DNS-01
-
 
 - name: deploy-staging
   plan:
@@ -117,20 +74,6 @@ jobs:
       manifest: broker-src/bosh/manifest.yml
       vars_files:
       - terraform-secrets/terraform.yml
-  - task: update-broker
-    file: pipeline-tasks/register-service-broker.yml
-    params:
-      <<: &cf-creds-staging
-        CF_API_URL: ((cf-api-url-staging))
-        CF_USERNAME: ((cf-deploy-username-staging))
-        CF_PASSWORD: ((cf-deploy-password-staging))
-        CF_ORGANIZATION: ((cf-organization-staging))
-        CF_SPACE: ((cf-space-staging))
-      BROKER_NAME: domains-broker
-      BROKER_URL: ((broker-url-staging))
-      AUTH_USER: ((domains-broker-user-staging))
-      AUTH_PASS: ((domains-broker-pass-staging))
-      SERVICES: custom-domain
   on_failure:
     put: slack
     params:
@@ -149,38 +92,6 @@ jobs:
       channel: ((slack-channel))
       username: ((slack-username))
       icon_url: ((slack-icon-url))
-
-- name: acceptance-tests-staging
-  serial: true
-  plan:
-  - get: broker-src
-    passed: [deploy-staging]
-    trigger: true
-  - get: broker-release
-    trigger: true
-  - get: stemcell-xenial
-    trigger: true
-  - in_parallel:
-    - task: acceptance-tests-http-01
-      file: broker-src/ci/acceptance-tests.yml
-      params: &acceptance-tests-params-staging
-        <<: *cf-creds-staging
-        SERVICE_NAME: custom-domain
-        PLAN_NAME: custom-domain
-        SERVICE_INSTANCE_NAME: domains-acceptance-test-%s
-        AWS_ACCESS_KEY_ID: ((domains-broker-access-key-id-acceptance-staging))
-        AWS_SECRET_ACCESS_KEY: ((domains-broker-secret-access-key-acceptance-staging))
-        CHALLENGE_TYPE: HTTP-01
-        HOSTED_ZONE_ID: ((hosted-zone-id-staging))
-        DOMAIN: ((domain-url-staging))
-        DOMAINS_TIMEOUT: ((domains-timeout))
-        CA_CERT: ((acceptance-test-ca-cert-staging))
-        DELETE_SERVICE: ((acceptance-test-delete-service-staging))
-    - task: acceptance-tests-dns-01
-      file: broker-src/ci/acceptance-tests.yml
-      params:
-        <<: *acceptance-tests-params-staging
-        CHALLENGE_TYPE: DNS-01
 
 - name: deploy-production
   plan:
@@ -207,20 +118,6 @@ jobs:
       manifest: broker-src/bosh/manifest.yml
       vars_files:
       - terraform-secrets/terraform.yml
-  - task: update-broker
-    file: pipeline-tasks/register-service-broker.yml
-    params:
-      <<: &cf-creds-production
-        CF_API_URL: ((cf-api-url-production))
-        CF_USERNAME: ((cf-deploy-username-production))
-        CF_PASSWORD: ((cf-deploy-password-production))
-        CF_ORGANIZATION: ((cf-organization-production))
-        CF_SPACE: ((cf-space-production))
-      BROKER_NAME: domains-broker
-      BROKER_URL: ((broker-url-production))
-      AUTH_USER: ((domains-broker-user-production))
-      AUTH_PASS: ((domains-broker-pass-production))
-      SERVICES: custom-domain
   on_failure:
     put: slack
     params:
@@ -239,34 +136,6 @@ jobs:
       channel: ((slack-channel))
       username: ((slack-username))
       icon_url: ((slack-icon-url))
-
-- name: acceptance-tests-production
-  serial: true
-  plan:
-  - get: broker-src
-    passed: [deploy-production]
-    trigger: true
-  - in_parallel:
-    - task: acceptance-tests-http-01
-      file: broker-src/ci/acceptance-tests.yml
-      params: &acceptance-tests-params-production
-        <<: *cf-creds-production
-        SERVICE_NAME: custom-domain
-        PLAN_NAME: custom-domain
-        SERVICE_INSTANCE_NAME: domains-acceptance-test-%s
-        CHALLENGE_TYPE: HTTP-01
-        AWS_ACCESS_KEY_ID: ((domains-broker-access-key-id-acceptance-production))
-        AWS_SECRET_ACCESS_KEY: ((domains-broker-secret-access-key-acceptance-production))
-        HOSTED_ZONE_ID: ((hosted-zone-id-production))
-        DOMAIN: ((domain-url-production))
-        DOMAINS_TIMEOUT: ((domains-timeout))
-        DELETE_SERVICE: ((acceptance-test-delete-service-production))
-    - task: acceptance-tests-dns-01
-      file: broker-src/ci/acceptance-tests.yml
-      params:
-        <<: *acceptance-tests-params-production
-        CHALLENGE_TYPE: DNS-01
-
 
 resources:
 - name: broker-src
