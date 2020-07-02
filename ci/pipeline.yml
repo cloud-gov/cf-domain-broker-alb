@@ -97,11 +97,11 @@ jobs:
   plan:
   - in_parallel:
     - get: broker-src
-      passed: [acceptance-tests-staging]
+      passed: [deploy-staging]
       trigger: true
     - get: pipeline-tasks
     - get: broker-release
-      passed: [acceptance-tests-staging]
+      passed: [deploy-staging]
       trigger: true
     - get: stemcell-xenial
       trigger: true
