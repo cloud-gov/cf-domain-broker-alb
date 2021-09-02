@@ -5,7 +5,7 @@ releases:
 
 stemcells:
 - alias: default
-  name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
+  name: bosh-aws-xen-hvm-ubuntu-bionic-go_agent
   version: latest
 
 update:
@@ -47,4 +47,4 @@ instance_groups:
         api_address: ((api-url))
         client_id: ((client-id))
         client_secret: ((/cf/clients/cdn-broker-secret))
-        user_id_pool: ((user-id-pool)) 
+        user_id_pool: ((user-id-pool))
