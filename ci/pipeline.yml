@@ -143,12 +143,14 @@ resources:
   source:
     uri: ((cf-domains-broker-git-url))
     branch: ((cf-domains-broker-git-branch))
+    commit_verification_keys: ((cloud-gov-pgp-keys))
 
 - name: pipeline-tasks
   type: git
   source:
     uri: ((pipeline-tasks-git-url))
     branch: ((pipeline-tasks-git-branch))
+    commit_verification_keys: ((cloud-gov-pgp-keys))
 
 - name: broker-release
   type: s3-iam
