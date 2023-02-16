@@ -5,7 +5,7 @@ releases:
 
 stemcells:
 - alias: default
-  name: bosh-aws-xen-hvm-ubuntu-bionic-go_agent
+  os: ubuntu-bionic
   version: latest
 
 update:
