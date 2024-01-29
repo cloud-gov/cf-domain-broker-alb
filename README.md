@@ -4,7 +4,7 @@ A [Cloud Foundry](https://www.cloudfoundry.org/) [service broker](https://docs.c
 
 For the CDN version of this broker: https://github.com/18F/cf-cdn-service-broker
 
-## Let's Encrypt V1 End of Life
+## Let's Encrypt V1 End of Life 
 
 The Let's Encrypt V1 endpoint is reaching end of life in June of 2020. In November of 2019, Let's Encrypt shutdown the creation of new users via the V1 API. https://community.letsencrypt.org/t/end-of-life-plan-for-acmev1/88430
 
