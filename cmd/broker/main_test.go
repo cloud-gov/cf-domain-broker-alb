@@ -8,8 +8,8 @@ import (
 	"code.cloudfoundry.org/lager"
 	"github.com/pivotal-cf/brokerapi"
 
-	"github.com/cloud-gov/cf-domain-broker-alb/broker"
-	"github.com/cloud-gov/cf-domain-broker-alb/config"
+	"github.com/18F/cf-domain-broker-alb/broker"
+	"github.com/18F/cf-domain-broker-alb/config"
 )
 
 func TestHTTPHandler(t *testing.T) {

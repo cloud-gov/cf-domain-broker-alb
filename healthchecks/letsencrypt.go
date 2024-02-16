@@ -2,10 +2,9 @@ package healthchecks
 
 import (
 	"crypto"
+	"github.com/xenolf/lego/acme"
 
-	"github.com/jmcarp/lego/acme"
-
-	"github.com/cloud-gov/cf-domain-broker-alb/config"
+	"github.com/18F/cf-domain-broker-alb/config"
 )
 
 type User struct {

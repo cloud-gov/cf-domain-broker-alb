@@ -11,9 +11,9 @@ import (
 	"code.cloudfoundry.org/lager"
 	"github.com/pivotal-cf/brokerapi"
 
-	"github.com/cloud-gov/cf-domain-broker-alb/cf"
-	"github.com/cloud-gov/cf-domain-broker-alb/config"
-	"github.com/cloud-gov/cf-domain-broker-alb/models"
+	"github.com/18F/cf-domain-broker-alb/cf"
+	"github.com/18F/cf-domain-broker-alb/config"
+	"github.com/18F/cf-domain-broker-alb/models"
 )
 
 type Options struct {

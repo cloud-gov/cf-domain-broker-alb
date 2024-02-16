@@ -13,9 +13,9 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/jmcarp/lego/acme"
+	"github.com/xenolf/lego/acme"
 
-	"github.com/cloud-gov/cf-domain-broker-alb/config"
+	"github.com/18F/cf-domain-broker-alb/config"
 )
 
 func preCheckDNS(fqdn, value string) (bool, error) {

@@ -16,11 +16,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
 
-	"github.com/cloud-gov/cf-domain-broker-alb/broker"
-	"github.com/cloud-gov/cf-domain-broker-alb/config"
-	"github.com/cloud-gov/cf-domain-broker-alb/healthchecks"
-	"github.com/cloud-gov/cf-domain-broker-alb/models"
-	"github.com/cloud-gov/cf-domain-broker-alb/utils"
+	"github.com/18F/cf-domain-broker-alb/broker"
+	"github.com/18F/cf-domain-broker-alb/config"
+	"github.com/18F/cf-domain-broker-alb/healthchecks"
+	"github.com/18F/cf-domain-broker-alb/models"
+	"github.com/18F/cf-domain-broker-alb/utils"
 )
 
 func main() {

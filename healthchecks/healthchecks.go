@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cloud-gov/cf-domain-broker-alb/config"
+	"github.com/18F/cf-domain-broker-alb/config"
 )
 
 var checks = map[string]func(config.Settings) error{

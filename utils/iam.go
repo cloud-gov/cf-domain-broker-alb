@@ -4,7 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/iam"
 
-	"github.com/jmcarp/lego/acme"
+	"github.com/xenolf/lego/acme"
 )
 
 type IamIface interface {
@@ -22,7 +22,7 @@ func (i *Iam) UploadCertificate(name, path string, cert acme.CertificateResource
 		CertificateBody:       aws.String(string(cert.Certificate)),
 		PrivateKey:            aws.String(string(cert.PrivateKey)),
 		ServerCertificateName: aws.String(name),
-		Path:                  aws.String(path),
+		Path: aws.String(path),
 	})
 	if err != nil {
 		return "", "", err
