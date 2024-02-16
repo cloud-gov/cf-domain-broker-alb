@@ -5,7 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elbv2"
 
-	"github.com/18F/cf-domain-broker-alb/config"
+	"github.com/cloud-gov/cf-domain-broker-alb/config"
 )
 
 func ALB(settings config.Settings) error {

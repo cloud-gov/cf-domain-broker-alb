@@ -11,11 +11,11 @@ import (
 	"github.com/cloudfoundry-community/go-cfclient"
 	"github.com/pivotal-cf/brokerapi"
 
-	"github.com/18F/cf-domain-broker-alb/broker"
-	cfmock "github.com/18F/cf-domain-broker-alb/cf/mocks"
-	"github.com/18F/cf-domain-broker-alb/config"
-	"github.com/18F/cf-domain-broker-alb/models"
-	"github.com/18F/cf-domain-broker-alb/models/mocks"
+	"github.com/cloud-gov/cf-domain-broker-alb/broker"
+	cfmock "github.com/cloud-gov/cf-domain-broker-alb/cf/mocks"
+	"github.com/cloud-gov/cf-domain-broker-alb/config"
+	"github.com/cloud-gov/cf-domain-broker-alb/models"
+	"github.com/cloud-gov/cf-domain-broker-alb/models/mocks"
 )
 
 func TestProvisioning(t *testing.T) {
