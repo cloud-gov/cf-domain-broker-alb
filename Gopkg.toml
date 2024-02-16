@@ -34,7 +34,6 @@
   version = "~1.13.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/cloudfoundry-community/go-cfclient"
   revision = "5f2155bebf6f16875beeb57976328f352d99f312"
 
