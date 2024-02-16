@@ -19,11 +19,6 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/lager"
-	"github.com/jinzhu/gorm"
-	"github.com/lib/pq"
-	"github.com/pivotal-cf/brokerapi"
-	"github.com/xenolf/lego/acme"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -31,9 +26,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2/elbv2iface"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/jinzhu/gorm"
+	"github.com/jmcarp/lego/acme"
+	"github.com/lib/pq"
+	"github.com/pivotal-cf/brokerapi"
 
-	"github.com/18F/cf-domain-broker-alb/config"
-	"github.com/18F/cf-domain-broker-alb/utils"
+	"github.com/cloud-gov/cf-domain-broker-alb/config"
+	"github.com/cloud-gov/cf-domain-broker-alb/utils"
 )
 
 type State string
