@@ -35,7 +35,7 @@
 
 [[constraint]]
   name = "github.com/cloudfoundry-community/go-cfclient"
-  version = "v3.0.0-alpha.6"
+  version = "<=v3.0.0-alpha.6"
 
 [[constraint]]
   name = "github.com/jinzhu/gorm"
