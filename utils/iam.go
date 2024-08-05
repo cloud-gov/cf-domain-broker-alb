@@ -2,27 +2,29 @@ package utils
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go/service/iam/iamiface"
 
 	"github.com/xenolf/lego/acme"
 )
 
-type IamIface interface {
+type IamUtilsIface interface {
 	UploadCertificate(name, path string, cert acme.CertificateResource) (string, string, error)
 	DeleteCertificate(name string) error
 	ListCertificates(path string, callback func(iam.ServerCertificateMetadata) bool) error
 }
 
-type Iam struct {
-	Service *iam.IAM
+type IamUtils struct {
+	Service iamiface.IAMAPI
 }
 
-func (i *Iam) UploadCertificate(name, path string, cert acme.CertificateResource) (string, string, error) {
+func (i *IamUtils) UploadCertificate(name, path string, cert acme.CertificateResource) (string, string, error) {
 	resp, err := i.Service.UploadServerCertificate(&iam.UploadServerCertificateInput{
 		CertificateBody:       aws.String(string(cert.Certificate)),
 		PrivateKey:            aws.String(string(cert.PrivateKey)),
 		ServerCertificateName: aws.String(name),
-		Path: aws.String(path),
+		Path:                  aws.String(path),
 	})
 	if err != nil {
 		return "", "", err
@@ -31,7 +33,7 @@ func (i *Iam) UploadCertificate(name, path string, cert acme.CertificateResource
 	return *resp.ServerCertificateMetadata.Arn, *resp.ServerCertificateMetadata.ServerCertificateName, nil
 }
 
-func (i *Iam) ListCertificates(path string, callback func(iam.ServerCertificateMetadata) bool) error {
+func (i *IamUtils) ListCertificates(path string, callback func(iam.ServerCertificateMetadata) bool) error {
 	return i.Service.ListServerCertificatesPages(
 		&iam.ListServerCertificatesInput{
 			PathPrefix: aws.String(path),
@@ -49,10 +51,17 @@ func (i *Iam) ListCertificates(path string, callback func(iam.ServerCertificateM
 	)
 }
 
-func (i *Iam) DeleteCertificate(name string) error {
+func (i *IamUtils) DeleteCertificate(name string) error {
 	_, err := i.Service.DeleteServerCertificate(&iam.DeleteServerCertificateInput{
 		ServerCertificateName: aws.String(name),
 	})
+
+	// If the certificate was already deleted, do not return an error
+	if awsErr, ok := err.(awserr.Error); ok {
+		if awsErr.Code() == "NoSuchEntity" {
+			return nil
+		}
+	}
 
 	return err
 }

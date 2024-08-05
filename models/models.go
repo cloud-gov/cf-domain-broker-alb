@@ -233,7 +233,7 @@ type RouteManagerIface interface {
 
 type RouteManager struct {
 	logger   lager.Logger
-	iam      utils.IamIface
+	iam      utils.IamUtilsIface
 	elbSvc   elbv2iface.ELBV2API
 	settings config.Settings
 	db       *gorm.DB
@@ -241,7 +241,7 @@ type RouteManager struct {
 
 func NewManager(
 	logger lager.Logger,
-	iam utils.IamIface,
+	iam utils.IamUtilsIface,
 	elbSvc elbv2iface.ELBV2API,
 	settings config.Settings,
 	db *gorm.DB,
