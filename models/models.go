@@ -20,9 +20,9 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	"github.com/jinzhu/gorm"
+	"github.com/jmcarp/lego/acme"
 	"github.com/lib/pq"
 	"github.com/pivotal-cf/brokerapi"
-	"github.com/xenolf/lego/acme"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"

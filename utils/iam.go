@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/iam/iamiface"
 
-	"github.com/xenolf/lego/acme"
+	"github.com/jmcarp/lego/acme"
 )
 
 type IamUtilsIface interface {
