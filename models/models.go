@@ -20,9 +20,9 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	"github.com/jinzhu/gorm"
+	"github.com/jmcarp/lego/acme"
 	"github.com/lib/pq"
 	"github.com/pivotal-cf/brokerapi"
-	"github.com/xenolf/lego/acme"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -233,7 +233,7 @@ type RouteManagerIface interface {
 
 type RouteManager struct {
 	logger   lager.Logger
-	iam      utils.IamIface
+	iam      utils.IamUtilsIface
 	elbSvc   elbv2iface.ELBV2API
 	settings config.Settings
 	db       *gorm.DB
@@ -241,7 +241,7 @@ type RouteManager struct {
 
 func NewManager(
 	logger lager.Logger,
-	iam utils.IamIface,
+	iam utils.IamUtilsIface,
 	elbSvc elbv2iface.ELBV2API,
 	settings config.Settings,
 	db *gorm.DB,
