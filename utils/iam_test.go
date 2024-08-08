@@ -12,7 +12,15 @@ import (
 
 type mockIAM struct {
 	iamiface.IAMAPI
+	getCertificateError  error
 	deleteCertificateErr error
+}
+
+func (m mockIAM) GetServerCertificate(*iam.GetServerCertificateInput) (*iam.GetServerCertificateOutput, error) {
+	if m.getCertificateError != nil {
+		return nil, m.getCertificateError
+	}
+	return nil, nil
 }
 
 func (m mockIAM) DeleteServerCertificate(*iam.DeleteServerCertificateInput) (*iam.DeleteServerCertificateOutput, error) {
@@ -24,6 +32,7 @@ func (m mockIAM) DeleteServerCertificate(*iam.DeleteServerCertificateInput) (*ia
 
 func TestDeleteCertificate(t *testing.T) {
 	deleteCertificateErr := errors.New("error deleting certificate")
+	getCertificateErr := errors.New("error getting certificate")
 	noSuchEntityErr := awserr.New("NoSuchEntity", "user does not exist", errors.New("original error"))
 
 	testCases := map[string]struct {
@@ -35,7 +44,21 @@ func TestDeleteCertificate(t *testing.T) {
 				Service: &mockIAM{},
 			},
 		},
-		"should error": {
+		"unexpected get error should not be returned": {
+			iamUtils: &IamUtils{
+				Service: &mockIAM{
+					getCertificateError: getCertificateErr,
+				},
+			},
+		},
+		"NoSuchEntity get error should be ignored": {
+			iamUtils: &IamUtils{
+				Service: &mockIAM{
+					getCertificateError: noSuchEntityErr,
+				},
+			},
+		},
+		"unexpected delete error should be returned": {
 			iamUtils: &IamUtils{
 				Service: &mockIAM{
 					deleteCertificateErr: deleteCertificateErr,
@@ -43,7 +66,7 @@ func TestDeleteCertificate(t *testing.T) {
 			},
 			expectedErr: deleteCertificateErr,
 		},
-		"no error for NoSuchEntity": {
+		"NoSuchEntity delete error should be ignored": {
 			iamUtils: &IamUtils{
 				Service: &mockIAM{
 					deleteCertificateErr: noSuchEntityErr,
