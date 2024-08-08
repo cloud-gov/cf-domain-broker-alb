@@ -12,8 +12,9 @@ import (
 
 type mockIAM struct {
 	iamiface.IAMAPI
-	getCertificateError  error
-	deleteCertificateErr error
+	getCertificateError     error
+	deleteCertificateErr    error
+	deleteCertificateCalled bool
 }
 
 func (m mockIAM) GetServerCertificate(*iam.GetServerCertificateInput) (*iam.GetServerCertificateOutput, error) {
@@ -24,6 +25,7 @@ func (m mockIAM) GetServerCertificate(*iam.GetServerCertificateInput) (*iam.GetS
 }
 
 func (m mockIAM) DeleteServerCertificate(*iam.DeleteServerCertificateInput) (*iam.DeleteServerCertificateOutput, error) {
+	m.deleteCertificateCalled = true
 	if m.deleteCertificateErr != nil {
 		return nil, m.deleteCertificateErr
 	}
@@ -36,8 +38,9 @@ func TestDeleteCertificate(t *testing.T) {
 	noSuchEntityErr := awserr.New("NoSuchEntity", "user does not exist", errors.New("original error"))
 
 	testCases := map[string]struct {
-		iamUtils    *IamUtils
-		expectedErr error
+		iamUtils                      *IamUtils
+		expectedErr                   error
+		expectDeleteCertificateCalled bool
 	}{
 		"no error": {
 			iamUtils: &IamUtils{
@@ -51,7 +54,7 @@ func TestDeleteCertificate(t *testing.T) {
 				},
 			},
 		},
-		"NoSuchEntity get error should be ignored": {
+		"NoSuchEntity get error should not be returned": {
 			iamUtils: &IamUtils{
 				Service: &mockIAM{
 					getCertificateError: noSuchEntityErr,
@@ -64,7 +67,8 @@ func TestDeleteCertificate(t *testing.T) {
 					deleteCertificateErr: deleteCertificateErr,
 				},
 			},
-			expectedErr: deleteCertificateErr,
+			expectedErr:                   deleteCertificateErr,
+			expectDeleteCertificateCalled: true,
 		},
 		"NoSuchEntity delete error should be ignored": {
 			iamUtils: &IamUtils{
@@ -72,6 +76,7 @@ func TestDeleteCertificate(t *testing.T) {
 					deleteCertificateErr: noSuchEntityErr,
 				},
 			},
+			expectDeleteCertificateCalled: true,
 		},
 	}
 
@@ -80,6 +85,12 @@ func TestDeleteCertificate(t *testing.T) {
 			err := test.iamUtils.DeleteCertificate("fake-cert")
 			if !errors.Is(err, test.expectedErr) {
 				t.Errorf("expected error: %s, got: %s", test.expectedErr, err)
+			}
+
+			if mockIamUtils, ok := test.iamUtils.Service.(*mockIAM); ok {
+				if test.expectDeleteCertificateCalled != mockIamUtils.deleteCertificateCalled {
+					t.Errorf("expected delete certificate called: %t, got: %t", test.expectDeleteCertificateCalled, mockIamUtils.deleteCertificateCalled)
+				}
 			}
 		})
 	}
