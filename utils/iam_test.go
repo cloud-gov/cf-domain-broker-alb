@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
-
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/iam/iamiface"
 )
@@ -17,14 +16,14 @@ type mockIAM struct {
 	deleteCertificateCalled bool
 }
 
-func (m mockIAM) GetServerCertificate(*iam.GetServerCertificateInput) (*iam.GetServerCertificateOutput, error) {
+func (m *mockIAM) GetServerCertificate(*iam.GetServerCertificateInput) (*iam.GetServerCertificateOutput, error) {
 	if m.getCertificateError != nil {
 		return nil, m.getCertificateError
 	}
 	return nil, nil
 }
 
-func (m mockIAM) DeleteServerCertificate(*iam.DeleteServerCertificateInput) (*iam.DeleteServerCertificateOutput, error) {
+func (m *mockIAM) DeleteServerCertificate(*iam.DeleteServerCertificateInput) (*iam.DeleteServerCertificateOutput, error) {
 	m.deleteCertificateCalled = true
 	if m.deleteCertificateErr != nil {
 		return nil, m.deleteCertificateErr
@@ -46,6 +45,7 @@ func TestDeleteCertificate(t *testing.T) {
 			iamUtils: &IamUtils{
 				Service: &mockIAM{},
 			},
+			expectDeleteCertificateCalled: true,
 		},
 		"unexpected get error should not be returned": {
 			iamUtils: &IamUtils{
@@ -53,6 +53,7 @@ func TestDeleteCertificate(t *testing.T) {
 					getCertificateError: getCertificateErr,
 				},
 			},
+			expectDeleteCertificateCalled: true,
 		},
 		"NoSuchEntity get error should not be returned": {
 			iamUtils: &IamUtils{
