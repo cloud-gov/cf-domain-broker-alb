@@ -44,6 +44,16 @@ const (
 	Deprovisioned       = "deprovisioned"
 )
 
+type OperationStatus int
+
+const (
+	InProgress OperationStatus = iota + 1 // EnumIndex = 1
+)
+
+func (o OperationStatus) String() string {
+	return [...]string{"in progress"}[o-1]
+}
+
 var (
 	helperLogger = lager.NewLogger("helper-logger")
 )
@@ -665,6 +675,32 @@ func (m *RouteManager) updateProvisioning(r *Route) error {
 	return m.db.Save(r).Error
 }
 
+func (m *RouteManager) deleteAssociatedOperationsForRoute(route_guid string) error {
+	return m.db.Exec(`DELETE FROM operations WHERE route_guid = $1`, route_guid).Error
+}
+
+func (m *RouteManager) hasActiveOperations(route_guid string) (bool, error) {
+	inProgressState := InProgress
+
+	rows, err := m.db.Raw(
+		`SELECT id FROM operations WHERE route_guid = $1 AND state = $2`,
+		route_guid,
+		inProgressState.String(),
+	).Rows()
+
+	if err != nil {
+		return false, err
+	}
+
+	defer rows.Close()
+	var rowCount int
+	for rows.Next() {
+		rowCount += 1
+	}
+
+	return rowCount > 0, err
+}
+
 func (m *RouteManager) Destroy(guid string) error {
 	lsession := m.logger.Session("route-manager", lager.Data{"guid": guid})
 	lsession.Info("destroy-route")
@@ -684,6 +720,21 @@ func (m *RouteManager) Destroy(guid string) error {
 	case gorm.ErrRecordNotFound:
 	default:
 		return certErr
+	}
+	// Even though there is no gorm.Model for an `operations` table, it exists in the database.
+	// Attempting to delete a route record without deleting the associated operations first
+	// will cause a foreign-key constraint error, so we are manually deleting any associated
+	// operation records before attempting the route deletion.
+	hasActiveOperationsPending, err := m.hasActiveOperations(guid)
+	if err != nil {
+		return err
+	}
+	if !hasActiveOperationsPending {
+		if err := m.deleteAssociatedOperationsForRoute(guid); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("cannot delete route: there are active operations at this time. Please try again later")
 	}
 	return m.db.Delete(route).Error
 }
