@@ -665,6 +665,10 @@ func (m *RouteManager) updateProvisioning(r *Route) error {
 	return m.db.Save(r).Error
 }
 
+func (m *RouteManager) deleteAssociatedOperationsForRoute(route_guid string) error {
+	return m.db.Raw(`DELETE FROM operations WHERE route_guid = $1`, route_guid).Error
+}
+
 func (m *RouteManager) Destroy(guid string) error {
 	lsession := m.logger.Session("route-manager", lager.Data{"guid": guid})
 	lsession.Info("destroy-route")
@@ -684,6 +688,13 @@ func (m *RouteManager) Destroy(guid string) error {
 	case gorm.ErrRecordNotFound:
 	default:
 		return certErr
+	}
+	// Even though there is no gorm.Model for an `operations` table, it exists in the database.
+	// Attempting to delete a route record without deleting the associated operations first
+	// will cause a foreign-key constraint error, so we are manually deleting any associated
+	// operation records before attempting the route deletion.
+	if err := m.deleteAssociatedOperationsForRoute(guid); err != nil {
+		return err
 	}
 	return m.db.Delete(route).Error
 }
