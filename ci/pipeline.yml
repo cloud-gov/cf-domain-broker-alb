@@ -44,15 +44,6 @@ jobs:
       channel: ((slack-failure-channel))
       username: ((slack-username))
       icon_url: ((slack-icon-url))
-  on_success: &slack-success-params
-    put: slack
-    params:
-      text: |
-        :white_check_mark: Successfully deployed cf-domains-service-broker on ((cf-api-url-development))
-        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-      channel: ((slack-success-channel))
-      username: ((slack-username))
-      icon_url: ((slack-icon-url))
 
 - name: deploy-staging
   plan:
@@ -86,13 +77,6 @@ jobs:
       <<: *slack-failure-params
       text: |
         :x: FAILED to deploy cf-domains-service-broker on ((cf-api-url-staging))
-        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-  on_success:
-    put: slack
-    params:
-      <<: *slack-success-params
-      text: |
-        :white_check_mark: Successfully deployed cf-domains-service-broker on ((cf-api-url-staging))
         <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
 
 - name: deploy-production
@@ -128,13 +112,6 @@ jobs:
       <<: *slack-failure-params
       text: |
         :x: FAILED to deploy cf-domains-service-broker on ((cf-api-url-production))
-        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-  on_success:
-    put: slack
-    params:
-      <<: *slack-success-params
-      text: |
-        :white_check_mark: Successfully deployed cf-domains-service-broker on ((cf-api-url-production))
         <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
 
 resources:
